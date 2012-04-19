@@ -15,6 +15,11 @@ look ((row,col),dir) = case dir of
 						6 -> (row-1,col+1)
 						7 -> (row-1,col)
 
+multiLook :: Vector -> Int -> Pos
+multiLook (pos,dir) 0 = pos
+multiLook (pos,dir) n = let nextPos = look (pos,dir) in
+                            multiLook (nextPos,dir) (n-1)
+
 isValid :: Pos -> Bool
 isValid pos = checkRow pos && checkColumn pos
 

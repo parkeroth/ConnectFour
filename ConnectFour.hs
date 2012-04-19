@@ -5,6 +5,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Debug.Trace
 import Board
+import Chains
 import Position
 import AI
 
@@ -17,7 +18,7 @@ type GameState = (Context,Board,Turn)
 
 updateGameState :: GameState -> Column -> GameState
 updateGameState (c,b,turn) col = case turn of
-                             HasWon t -> error "Why would a wookie live on Endor?"
+                             HasWon t line -> error "Why would a wookie live on Endor?"
                              ToPlay t -> let b' = updateBoard b t col 
                                              t' = updateTurn b' t in (c,b',t')
 
@@ -31,8 +32,15 @@ updateBoard b t col = [if i==col then c ++ [t] else c
 updateTurn :: Board -> XO -> Turn
 updateTurn b t = case hasWon (b,t) of
                     Nothing -> ToPlay (swap t)
-                    Just n -> HasWon t
+                    Just n -> HasWon t n
                     
+hasWon :: BoardState -> Maybe (Pos,Pos)
+hasWon (b,t) = let lines = [checkFor b ((topFilled b x),x) (Token t) 4 | x <- [0..5]]
+                   winners = maximum lines in
+                if length(winners) > 0 then
+                    Just (head winners)
+                 else
+                    Nothing
 --------------------------------------------------------------------------------
 
 main = blankCanvas 3000 $ \ context -> loop (context,newBoard,ToPlay X)
@@ -54,10 +62,11 @@ loop gState@(context,board,turn) = do
 			           Nothing -> loop gState
 			           Just pos -> guiColumn pos gState dims
  			
- 			ToPlay O -> guiCell (nextMove (board,O)) gState
- 			HasWon t -> do  print t
- 			                send context $ do
+ 			ToPlay O   -> guiCell (nextMove (board,O)) gState
+ 			HasWon t p -> do  print p
+ 			                  send context $ do
  			                        displayBoard board dims
+ 			                        drawLine dims p
  			                        drawMessage dims $ "Player " ++ show t ++ " Wins!"
 
 guiColumn :: (Int,Int) -> GameState -> Dims -> IO ()
@@ -93,6 +102,7 @@ fd x = if r `elem` [0..6] then Just r else Nothing
 xColor = "#ff0000"
 oColor = "#00a000"
 boardColor = "#000080"
+winColor = "#000000"
 
 drawX :: Float -> Canvas ()
 drawX size = do
@@ -126,6 +136,23 @@ bigLine (x,y) (x',y') = do
         lineCap "round"
         strokeStyle boardColor
         stroke()
+        
+drawLine :: Dims -> (Pos,Pos) -> Canvas ()
+drawLine (width,height,sz) ((row,col),(row',col')) = do
+        save()
+        translate (width / 2,height / 2)
+        beginPath()
+        
+        moveTo( fromIntegral (col-3)   * (0.1) * sz,
+                fromIntegral (row-3)     * (-0.1) * sz - 0.05*sz)
+        lineTo( fromIntegral (col'-3)  * (0.1) * sz,
+                fromIntegral (row'-3)    * (-0.1) * sz - 0.05*sz)
+        
+        lineWidth 8
+        lineCap "round"
+        strokeStyle winColor
+        stroke()
+        restore()
         
 displayBoard :: Board -> Dims -> Canvas ()
 displayBoard board (width,height,sz) = do

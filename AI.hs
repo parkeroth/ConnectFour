@@ -2,8 +2,9 @@ module AI where
 
 import System.Random
 import Data.List
-import Board
+import Chains
 import Position
+import Board
 	
 type Score = Int
 
@@ -15,7 +16,7 @@ nextMove (b,t) = let col = nextColumn (b,t)
                      in (row,col)
 
 nextColumn :: BoardState -> Column
-nextColumn (b,t) = let scores = [colScore t (getChainList (b,t) (nextCell b x,x)) | x <- [0..6]]
+nextColumn (b,t) = let scores = [colScore (b,t) ((nextCell b x),x) | x <- [0..6]]
 					 in pickCol b scores
 
 pickCol :: Board -> [Score] -> Column
@@ -30,19 +31,13 @@ pickCol b scores = let m  = maximum scores
 
 --------------------------------------------------------------------------------
 
-colScore :: XO -> [Chain] -> Int
-colScore t [] = 0
-colScore t (x:xs) = chainScore t x + colScore t xs
+colScore :: BoardState -> Pos -> Int
+colScore (b,t) pos = let stop = [2,20,100]
+                         make = [1,10,200] in
+        sum[(make !! x) * (length (checkFor b pos (Token t) (x+1))) | x <- [0..2]] +
+        sum[(stop !! x) * (length (checkFor b pos (Token (swap t)) (x+1))) | x <- [0..2]] +
+        sum[1 * (length (checkFor b pos Empty x)) | x <- [0..6]]
 
-
-chainScore :: XO -> Chain -> Int
-chainScore t (Invalid,_) 				= 0
-chainScore t (Empty,len) 				= 1*len
-chainScore t ((Token n),len) 	= let (stop,make) = ([2,20,100],[1,10,200])
-										in 	if n == t then
-												make !! (len-1)
-											 else
-												stop !! (len-1)
 
 --------------------------------------------------------------------------------
 -- Util Functions
