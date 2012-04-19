@@ -99,30 +99,27 @@ fd x = if r `elem` [0..6] then Just r else Nothing
 -- Draw Methods
 --------------------------------------------------------------------------------
 
-xColor = "#ff0000"
-oColor = "#00a000"
+xColor = "#000000"
+oColor = "#ff0000"
 boardColor = "#000080"
-winColor = "#000000"
+winColor = "#ffff00"
 
 drawX :: Float -> Canvas ()
-drawX size = do
+drawX radius = do
+        beginPath()
+        arc(0, 0, radius, 0, 2 * pi, False)
+        fillStyle xColor
+        fill()
+        lineWidth 4
         strokeStyle xColor
-        lineCap "butt"
-        beginPath()
-        moveTo(-size,-size)
-        lineTo(size,size)
-        lineWidth 4
-        stroke()
-        beginPath()
-        moveTo(-size,size)
-        lineTo(size,-size)
-        lineWidth 4
         stroke()
 
 drawO :: Float -> Canvas ()
 drawO radius = do
         beginPath()
         arc(0, 0, radius, 0, 2 * pi, False)
+        fillStyle oColor
+        fill()
         lineWidth 4
         strokeStyle oColor
         stroke()
