@@ -109,7 +109,7 @@ maxChain ((x,l):xs) max | l > max = maxChain xs l
 -- Determine if a chain represents a chain of filled spots
 isFilled :: XO -> Chain -> Bool
 isFilled t chain 	= case chain of 
-						((Token t),_) -> True
+						((Token i),_) -> (i == t)
 						otherwise -> False
 
 --------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ testBoard1 = [	[],[X,O,O],[O,X,X,O],[O,X,X,X,O,X],
 				[O,O],[X,X,O,X],[]]
 				
 testBoard2 :: Board							
-testBoard2 = [	[X,X],[X,X,O,X],[O,X,X,O],[X,O,O,O,O],
-				[],[],[]]
+testBoard2 = [	[X],[X,O],[X,O],[O],
+				[O],[X],[]]
 
 

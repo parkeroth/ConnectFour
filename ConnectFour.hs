@@ -56,8 +56,9 @@ loop gState@(context,board,turn) = do
  			
  			ToPlay O -> guiCell (nextMove (board,O)) gState
  			HasWon t -> do  print t
- 			                send context $ displayBoard board dims
- 			
+ 			                send context $ do
+ 			                        displayBoard board dims
+ 			                        drawMessage dims $ "Player " ++ show t ++ " Wins!"
 
 guiColumn :: (Int,Int) -> GameState -> Dims -> IO ()
 guiColumn (x',y') gs@(context,board,turn) dims = let x = fromIntegral x'
@@ -157,4 +158,11 @@ displayBoard board (width,height,sz) = do
                   , y <- [0..5]
                   ]
         restore()
+        
+drawMessage :: Dims -> String -> Canvas ()
+drawMessage (width,height,sz) str = do
+        translate (width / 2,height / 2)
+        font "20pt Georgia"
+        textAlign "center"
+        fillText(str, 0, sz*0.4)
 
