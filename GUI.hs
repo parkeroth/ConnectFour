@@ -9,14 +9,39 @@ import Position
 import AI
 
 type Dims = (Float,Float,Float)
+type GameState = (Context,Board,Turn)
 
-main = blankCanvas 3000 $ \ context -> loop context newBoard X
+--------------------------------------------------------------------------------
+-- Alter the game state
+--------------------------------------------------------------------------------
 
-loop :: Context -> Board -> XO -> IO ()
-loop context board turn = do
+updateGameState :: GameState -> Column -> GameState
+updateGameState (c,b,turn) col = case turn of
+                             HasWon t -> error "Why would a wookie live on Endor?"
+                             ToPlay t -> let b' = updateBoard b t col 
+                                             t' = updateTurn b' t in (c,b',t')
+
+-- Update the board with the latest move
+updateBoard :: Board -> XO -> Column -> Board
+updateBoard b t col = [if i==col then c ++ [t] else c
+                      | (c,i) <- zip b [0..]
+                      ]
+
+-- Update the next turn
+updateTurn :: Board -> XO -> Turn
+updateTurn b t = case hasWon (b,t) of
+                    Nothing -> ToPlay (swap t)
+                    Just n -> HasWon t
+                    
+--------------------------------------------------------------------------------
+
+main = blankCanvas 3000 $ \ context -> loop (context,newBoard,ToPlay X)
+
+loop :: GameState -> IO ()
+loop gState@(context,board,turn) = do
 --        print board
 --        print turn
-        (width,height,sz) <- send context $ do
+        dims@(width,height,sz) <- send context $ do
                 (width,height) <- size
                 clearRect (0,0,width,height)
                 beginPath()
@@ -51,29 +76,29 @@ loop context board turn = do
                 return (width,height,sz)
                               
         case turn of
-			X -> do
-				event <- send context $ readEvent MouseDown
-				case jsMouse event of
-				   Nothing -> loop context board turn
-				   Just pos -> guiColumn pos context board turn (width,height,sz)
+			ToPlay X -> do  
+			        event <- send context $ readEvent MouseDown
+			        case jsMouse event of
+			           Nothing -> loop gState
+			           Just pos -> guiColumn pos gState dims
  			
- 			O -> guiCell (nextMove (board,turn)) context board turn
+ 			ToPlay O -> guiCell (nextMove (board,O)) gState
+ 			HasWon t -> print t
  			
 
-guiColumn :: (Int,Int) -> Context -> Board -> XO -> Dims -> IO ()
-guiColumn (x',y') context board turn dims = let x = fromIntegral x'
-                                                y = fromIntegral y' in
-                                            case pointToCol (x,y) board dims of
-						                        Nothing -> loop context board turn
-						                        Just pos -> guiCell pos context board turn
+guiColumn :: (Int,Int) -> GameState -> Dims -> IO ()
+guiColumn (x',y') gs@(context,board,turn) dims = let x = fromIntegral x'
+                                                     y = fromIntegral y' 
+                                            in case pointToCol (x,y) board dims of
+						                            Nothing -> loop gs
+						                            Just pos -> guiCell pos gs
 
-guiCell :: Pos -> Context -> Board -> XO -> IO ()
-guiCell (row,col) context board turn = case getCell board (row,col) of
-                                        Empty -> let newBoard = updateBoard board turn col 
-                                                     nextTurn = swap turn in
-                                                 loop context newBoard nextTurn
-                                        Token _ -> loop context board turn
-                                        Invalid -> loop context board turn
+guiCell :: Pos -> GameState -> IO ()
+guiCell (row,col) gs@(context,board,turn) = case getCell board (row,col) of
+                                        Empty   -> let newState = updateGameState gs col 
+                                                     in loop newState
+                                        Token _ -> loop gs
+                                        Invalid -> loop gs
 
 --------------------------------------------------------------------------------
 -- Translate click event to a column index

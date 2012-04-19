@@ -3,7 +3,10 @@ module Board where
 import Data.List
 import Position
 
+type Board = [[XO]]			
 type Chain = (Cell,Int) -- (Type of cell, length of chain)
+type Column = Int
+type BoardState = (Board,XO)
 
 data XO = X | O
         deriving (Eq,Ord,Show)
@@ -11,13 +14,6 @@ data XO = X | O
 data Turn	= ToPlay XO
 			| HasWon XO
 			deriving (Eq,Show)
-
-swap :: XO -> XO
-swap X = O
-swap O = X
-
-type Column = Int
-type GameState = (Board,XO)
 
 data Cell 	= Token XO
 			| Empty
@@ -29,47 +25,24 @@ instance Show Cell where
 	show (Empty)	= " "
 	show (Invalid) 	= "!"
 
-type Board = [[XO]]
+swap :: XO -> XO
+swap X = O
+swap O = X
 
 newBoard :: Board
 newBoard = [[] | x <- [1..7]]
-
---------------------------------------------------------------------------------
--- Print the board or a sub part to the screen
---------------------------------------------------------------------------------
-
-showBoard :: Board -> IO ()
-showBoard b = do
-	putStrLn ""
-	putStrLn " _______ "	
-	sequence_ (reverse [ putStrLn $ "|" ++ (showRow b x [0..6]) ++ "|"
-						| x <- [0..5]])
-	putStrLn " 1234567 "
-
-showRow :: Board -> Int -> [Column] -> String
-showRow b r [] = []
-showRow b r (x:xs) = show (getCell b (r,x)) ++ showRow b r xs
-
---------------------------------------------------------------------------------
--- Update the board with a new move
---------------------------------------------------------------------------------
-
-updateBoard :: Board -> XO -> Column -> Board
-updateBoard b t col = [if i==col then c ++ [t] else c
-					  | (c,i) <- zip b [0..]
-					  ]
 
 --------------------------------------------------------------------------------
 -- Construct Chains of Tokens
 --------------------------------------------------------------------------------
 
 -- Get a list of all chains at a given position (All 8 directions)
-getChainList :: GameState -> Pos -> [Chain]
+getChainList :: BoardState -> Pos -> [Chain]
 getChainList (b,t) pos = let curCell = getCell b pos in
 		 [startChain (b,t) (pos,dir) | dir <- [0..7]] 
 
 -- Initiate a chain in a given direction
-startChain :: GameState -> Vector -> Chain
+startChain :: BoardState -> Vector -> Chain
 startChain (b,t) (pos,dir) = let firstPos = look (pos,dir)
                                  firstCell = getCell b firstPos
 					in case firstCell of
@@ -80,7 +53,7 @@ startChain (b,t) (pos,dir) = let firstPos = look (pos,dir)
 						Token n -> followChain (b,t) (firstPos,dir) firstCell 1
 
 -- Continue a chain as long as the same token is present				
-followChain :: GameState -> Vector -> Cell -> Int -> Chain
+followChain :: BoardState -> Vector -> Cell -> Int -> Chain
 followChain (b,t) (pos,dir) c l = let nextPos = look (pos,dir)
                                       nextCell = getCell b nextPos
 							 in case c of
@@ -107,15 +80,15 @@ compressChains xs c = let (y@(cy,ly):ys) = take (div (length xs) 2) xs
 
 -- Determine if the player has successfully created a chain 4 long
 -- TODO Return a start and stop pos of winning chain
-hasWon :: GameState -> Maybe Int
-hasWon gs = let maxes = [longestChain gs col | col <- [0..6]]
-				in if maximum maxes > 3 then
-					  	elemIndex (maximum maxes) maxes
-					else
-						Nothing
+hasWon :: BoardState -> Maybe Int
+hasWon bs = let maxes = [longestChain bs col | col <- [0..6]]
+				 in if maximum maxes > 3 then
+					  	 elemIndex (maximum maxes) maxes
+					 else
+						 Nothing
 
 -- Find the longest chain adjacent to a cell						  
-longestChain :: GameState -> Column -> Int
+longestChain :: BoardState -> Column -> Int
 longestChain (b,t) col = let row = topFilled b col
                              chainList = getChainList (b,t) (row,col)
                              centerCell = getCell b (row,col)

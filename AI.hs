@@ -9,12 +9,12 @@ type Score = Int
 
 --------------------------------------------------------------------------------
 
-nextMove :: GameState -> Pos
+nextMove :: BoardState -> Pos
 nextMove (b,t) = let col = nextColumn (b,t)
                      row = nextCell b col
                      in (row,col)
 
-nextColumn :: GameState -> Column
+nextColumn :: BoardState -> Column
 nextColumn (b,t) = let scores = [colScore t (getChainList (b,t) (nextCell b x,x)) | x <- [0..6]]
 					 in pickCol b scores
 
