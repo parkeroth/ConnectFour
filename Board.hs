@@ -79,7 +79,7 @@ testBoard1 = [	[X,O],[X,O,O],[O,X,X,O],[O,X,X,X,O,X],
 				[O,O],[X,X,O,X],[]]
 				
 testBoard2 :: Board							
-testBoard2 = [	[X],[O,O,O,O],[X,X],[X],
-				[O,X],[],[]]
+testBoard2 = [	[X,X,O],[O,X],[X,O,X,O],[O,O,X,X,O],
+				[X,X,O],[O,X],[]]
 
 

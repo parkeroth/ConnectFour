@@ -73,7 +73,7 @@ withCenter ls pos n = let l = length ls
                           dirY = 8 - (length ys)
                           nextX = look (pos,dirX)
                           nextY = look (pos,dirY) in
-                       if (x == y) && (len == n) then
+                       if len == n then
                             [(multiLook (nextX,dirX) (x-1),
                               multiLook (nextY,dirY) (y-1))] ++
                               withCenter ((tail xs) ++ (tail ys)) pos n
