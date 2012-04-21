@@ -73,9 +73,9 @@ withCenter ls pos n = let l = length ls
                           dirY = 8 - (length ys)
                           nextX = look (pos,dirX)
                           nextY = look (pos,dirY) in
-                       if len == n then
-                            [(multiLook (nextX,dirX) (x-1),
-                              multiLook (nextY,dirY) (y-1))] ++
+                       if (len == n) then
+                            [(multiLook (pos,dirX) x,
+                              multiLook (pos,dirY) y)] ++
                               withCenter ((tail xs) ++ (tail ys)) pos n
                         else
                             getCoord x (n-1) (pos,dirX) ++

@@ -75,7 +75,7 @@ validChoice b col = let row = nextCell b col in
 --------------------------------------------------------------------------------							
 
 testBoard1 :: Board							
-testBoard1 = [	[X,O],[X,O,O],[O,X,X,O],[O,X,X,X,O,X],
+testBoard1 = [	[X,O],[X,O,O],[O,X,X,O],[O,X,X,X,X],
 				[O,O],[X,X,O,X],[]]
 				
 testBoard2 :: Board							
