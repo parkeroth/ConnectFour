@@ -67,7 +67,10 @@ loop gState@(context,board,turn) = do
  			                  send context $ do
  			                        displayBoard board dims
  			                        drawLine dims p
- 			                        drawMessage dims $ "Player " ++ show t ++ " Wins!"
+ 			                        case t of
+ 			                            X ->  drawMessage dims $ "You Won!"
+ 			                            O ->  drawMessage dims $ "You Lost!"
+ 			                       
 
 guiColumn :: (Int,Int) -> GameState -> Dims -> IO ()
 guiColumn (x',y') gs@(context,board,turn) dims = let x = fromIntegral x'

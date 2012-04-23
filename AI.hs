@@ -44,6 +44,6 @@ colScore (b,t) pos = let stop = [2,20,100]
 --------------------------------------------------------------------------------
 
 -- Removes an element a from a list of a
-remove :: [a] -> Int -> [a]
-remove xs n = let (a,b) = splitAt n xs
-				in a ++ (tail b)
+remove :: [Int] -> Int -> [Int]
+remove (x:xs) 0 = 0:xs
+remove (x:xs) n = x:(remove xs (n-1))
