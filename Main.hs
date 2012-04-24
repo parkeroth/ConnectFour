@@ -60,8 +60,7 @@ loop gState@(context,board,turn) = do
 			           Just pos -> guiColumn pos gState dims
  			
  			ToPlay O   -> guiCell (nextMove (board,O)) gState
- 			HasWon t p -> do  print p
- 			                  send context $ do
+ 			HasWon t p -> do  send context $ do
  			                        displayBoard board dims
  			                        drawLine dims p
  			                        case t of
@@ -79,9 +78,8 @@ guiColumn (x',y') gs@(context,board,turn) dims = let x = fromIntegral x'
 guiCell :: Pos -> GameState -> IO ()
 guiCell pos@(row,col) gs@(context,board,turn) = case getCell board pos of
                                        Empty   -> let newState = updateGameState gs col
-                                                    in do print pos
-                                                          sequence_ [ send context cmds
-                                                                    | cmds <- animateDrop board pos 6
+                                                    in do sequence_ [ send context cmds
+                                                                    | cmds <- animateDrop (board,turn) pos 6
                                                                     ]
                                                           loop newState
                                        Token _ -> loop gs
@@ -108,19 +106,23 @@ oColor = "#ff0000"
 boardColor = "#000080"
 winColor = "#ffff00"
 
-animateDrop :: Board -> Pos -> Float -> [Canvas ()]
-animateDrop b (row,col) n | n > (fromIntegral row) = do
-                           (width,height) <- size
-                           let sz = min width height
-                           displayBoard b (width,height,sz)
-                           save()
-                           translate (width / 2,height / 2)
-                           translate (fromIntegral (col-3) * sz * 0.1,
-                                      (n-2) *sz*(-0.1) + 0.05*sz)
-                           drawX (sz * 0.025)
-                           restore()
-                           : animateDrop b (row,col) (n-0.01)
-                         | otherwise = []
+animateDrop :: (Board,Turn) -> Pos -> Float -> [Canvas ()]
+animateDrop (b,t) (row,col) n | n > (fromIntegral row) = case t of
+                                ToPlay xo -> do
+                                   (width,height) <- size
+                                   let sz = min width height
+                                   displayBoard b (width,height,sz)
+                                   save()
+                                   translate (width / 2,height / 2)
+                                   translate (fromIntegral (col-3) * sz * 0.1,
+                                              (n-2) *sz*(-0.1) + 0.05*sz)
+                                   if xo == X then
+                                       drawX (sz * 0.025)
+                                    else
+                                       drawO (sz * 0.025)
+                                   restore()
+                                   : animateDrop (b,t) (row,col) (1.2*n - 1.22)
+                              | otherwise = []
 
 drawX :: Float -> Canvas ()
 drawX radius = do
