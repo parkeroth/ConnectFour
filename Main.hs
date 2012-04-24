@@ -19,12 +19,6 @@ updateGameState (c,b,turn) col = case turn of
                              ToPlay t -> let b' = updateBoard b t col 
                                              t' = updateTurn b' t in (c,b',t')
 
--- Update the board with the latest move
-updateBoard :: Board -> XO -> Column -> Board
-updateBoard b t col = [if i==col then c ++ [t] else c
-                      | (c,i) <- zip b [0..]
-                      ]
-
 -- Update the next turn
 updateTurn :: Board -> XO -> Turn
 updateTurn b t = case hasWon (b,t) of
@@ -121,7 +115,8 @@ animateDrop (b,t) (row,col) n | n > (fromIntegral row) = case t of
                                     else
                                        drawO (sz * 0.025)
                                    restore()
-                                   : animateDrop (b,t) (row,col) (1.2*n - 1.22)
+--                                   : animateDrop (b,t) (row,col) (1.2*n - 1.22)
+                                   : animateDrop (b,t) (row,col) (n - 0.2)
                               | otherwise = []
 
 drawX :: Float -> Canvas ()

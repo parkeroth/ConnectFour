@@ -46,7 +46,7 @@ checkFor :: Board -> Pos -> Cell -> Int -> [(Pos,Pos)]
 checkFor b pos c l = let    chains = getChainList b pos
                             lengths = map (checkDir c) chains
                             centerCell = getCell b pos in
-                          if centerCell == c then      
+                          if centerCell == c || centerCell == Empty then      
                               withCenter lengths pos l
                            else
                               withOutCenter lengths pos l

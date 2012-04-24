@@ -31,6 +31,12 @@ swap O = X
 
 newBoard :: Board
 newBoard = [[] | x <- [1..7]]
+
+-- Update the board with the latest move
+updateBoard :: Board -> XO -> Column -> Board
+updateBoard b t col = [if i==col then c ++ [t] else c
+                      | (c,i) <- zip b [0..]
+                      ]
                         
 
 --------------------------------------------------------------------------------
@@ -75,10 +81,9 @@ validChoice b col = let row = nextCell b col in
 --------------------------------------------------------------------------------							
 
 testBoard1 :: Board							
-testBoard1 = [[X,X,O,X,O,X],[O,X,O,O,X],[],[],[],[],[]]
+testBoard1 = [[X,O,X,O,O,O],[O,X,X,O,X],[O,X,O,X,O],[X,X,O,X,X,O],[X,O,X,O],[O,X],[O,X,X,O,X]]
 				
 testBoard2 :: Board							
-testBoard2 = [	[X,X,O],[O,X],[X,O,X,O],[O,O,X,X,O],
-				[X,X,O],[O,X],[]]
+testBoard2 = [[X,O,X,O,O,O],[O,X,X,O,X],[O,X,O,X,O,O],[X,X,O,X,X,O],[X,O,X,O],[O,X],[O,X,X,O,X]]
 
 

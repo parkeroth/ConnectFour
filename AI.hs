@@ -16,7 +16,7 @@ nextMove (b,t) = let col = nextColumn (b,t)
                      in (row,col)
 
 nextColumn :: BoardState -> Column
-nextColumn (b,t) = let scores = [colScore (b,t) ((nextCell b x),x) | x <- [0..6]]
+nextColumn (b,t) = let scores = [colScore (b,t) 1 ((nextCell b x),x) | x <- [0..6]]
 					 in pickCol b scores
 
 pickCol :: Board -> [Score] -> Column
@@ -31,12 +31,44 @@ pickCol b scores = let m  = maximum scores
 
 --------------------------------------------------------------------------------
 
-colScore :: BoardState -> Pos -> Int
-colScore (b,t) pos = let stop = [2,20,100]
-                         make = [1,10,200] in
-        sum[(make !! x) * (length (checkFor b pos (Token t) (x+1))) | x <- [0..2]] +
-        sum[(stop !! x) * (length (checkFor b pos (Token (swap t)) (x+1))) | x <- [0..2]] +
-        sum[1 * (length (checkFor b pos Empty x)) | x <- [0..6]]
+colScore :: BoardState -> Int -> Pos -> Int
+colScore (b,t) gen (row,col) =   if gen > 0 then
+                                    let b' = updateBoard b t col
+                                        scores' = [makeScore b' (swap t) ((nextCell b' x),x) 
+                                                  | x <- [0..6]
+                                                  ]
+                                        m'   = maximum scores'
+                                        col' = head (elemIndices m' scores')
+                                        in if m' >= 200 && validChoice b' col' then
+                                                0
+                                            else
+                                                calcScore (b,t) (row,col)
+                                 else
+                                    calcScore (b,t) (row,col)
+        
+calcScore :: BoardState -> Pos -> Int
+calcScore (b,t) pos = (makeScore b t pos) +
+                      (stopScore b (swap t) pos) +
+                      (emptyScore b pos)
+        
+
+makeScore :: Board -> XO -> Pos -> Int
+makeScore b t pos = let points = [1,10,200]
+                        in  sum [(points !! x) * 
+                                 (length (checkFor b pos (Token t) (x+2))) 
+                                | x <- [0..2]]
+                                
+stopScore :: Board -> XO -> Pos -> Int
+stopScore b t pos = let points = [2,20,100]
+                        in  sum [(points !! x) * 
+                                 (length (checkFor b pos (Token t) (x+2))) 
+                                | x <- [0..2]]
+                                
+emptyScore :: Board -> Pos -> Int
+emptyScore b pos = let point = 1 
+                       in sum [point * (length (checkFor b pos Empty x)) 
+                              | x <- [0..6]]
+                        
 
 
 --------------------------------------------------------------------------------
