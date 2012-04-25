@@ -81,7 +81,7 @@ validChoice b col = let row = nextCell b col in
 --------------------------------------------------------------------------------							
 
 testBoard1 :: Board							
-testBoard1 = [[X,O,X,O,O,O],[O,X,X,O,X],[O,X,O,X,O],[X,X,O,X,X,O],[X,O,X,O],[O,X],[O,X,X,O,X]]
+testBoard1 = [[O,X,O,X,O,O],[O,X,O,X,X,O],[O,X,X],[X,O,X,O,X,O],[X,X,O,O,X,X],[O,X,O,X,O,X],[X,O,X,O,X,O]]
 				
 testBoard2 :: Board							
 testBoard2 = [[X,O,X,O,O,O],[O,X,X,O,X],[O,X,O,X,O,O],[X,X,O,X,X,O],[X,O,X,O],[O,X],[O,X,X,O,X]]

@@ -16,7 +16,7 @@ nextMove (b,t) = let col = nextColumn (b,t)
                      in (row,col)
 
 nextColumn :: BoardState -> Column
-nextColumn (b,t) = let scores = [colScore (b,t) 1 ((nextCell b x),x) | x <- [0..6]]
+nextColumn (b,t) = let scores = [colScore (b,t) 2 ((nextCell b x),x) | x <- [0..6]]
 					 in pickCol b scores
 
 pickCol :: Board -> [Score] -> Column
@@ -79,5 +79,5 @@ emptyScore b pos = let point = 1
 
 -- Removes an element a from a list of a
 remove :: [Int] -> Int -> [Int]
-remove (x:xs) 0 = 0:xs
+remove (x:xs) 0 = (-1):xs
 remove (x:xs) n = x:(remove xs (n-1))
