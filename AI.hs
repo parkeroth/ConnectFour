@@ -54,19 +54,21 @@ calcScore (b,t) pos = (makeScore b t pos) +
 
 makeScore :: Board -> XO -> Pos -> Int
 makeScore b t pos = let points = [1,10,200]
+                        c = Token t
                         in  sum [(points !! x) * 
-                                 (length (checkFor b pos (Token t) (x+2))) 
+                                 (length (checkFor b pos c c (x+2))) 
                                 | x <- [0..2]]
                                 
 stopScore :: Board -> XO -> Pos -> Int
 stopScore b t pos = let points = [2,20,100]
+                        c = Token t
                         in  sum [(points !! x) * 
-                                 (length (checkFor b pos (Token t) (x+2))) 
+                                 (length (checkFor b pos c c (x+2))) 
                                 | x <- [0..2]]
                                 
 emptyScore :: Board -> Pos -> Int
 emptyScore b pos = let point = 1 
-                       in sum [point * (length (checkFor b pos Empty x)) 
+                       in sum [point * (length (checkFor b pos Empty Empty x)) 
                               | x <- [0..6]]
                         
 

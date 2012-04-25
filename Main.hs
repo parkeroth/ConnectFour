@@ -26,7 +26,11 @@ updateTurn b t = case hasWon (b,t) of
                     Just n -> HasWon t n
                     
 hasWon :: BoardState -> Maybe (Pos,Pos)
-hasWon (b,t) = let lines = [checkFor b ((topFilled b x),x) (Token t) 4 | x <- [0..6]]
+hasWon (b,t) = let lines = [checkFor b 
+                                     ((topFilled b x),x) 
+                                     (Token t) 
+                                     (getCell b ((topFilled b x),x)) 4 
+                           | x <- [0..6]]
                    winners = maximum lines in
                 if length(winners) > 0 then
                     Just (head winners)

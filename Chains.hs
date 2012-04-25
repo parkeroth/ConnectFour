@@ -40,16 +40,14 @@ followChain b (pos,dir) c l = let nextPos = look (pos,dir)
 --------------------------------------------------------------------------------
 -- Chain Search
 --------------------------------------------------------------------------------
-
--- List to search -> size looking for -> possition looking at -> type looking for								
-checkFor :: Board -> Pos -> Cell -> Int -> [(Pos,Pos)]
-checkFor b pos c l = let    chains = getChainList b pos
-                            lengths = map (checkDir c) chains
-                            centerCell = getCell b pos in
-                          if centerCell == c || centerCell == Empty then      
-                              withCenter lengths pos l
-                           else
-                              withOutCenter lengths pos l
+								
+checkFor :: Board -> Pos -> Cell -> Cell -> Int -> [(Pos,Pos)]
+checkFor b pos tc cc l = let chains = getChainList b pos
+                             lengths = map (checkDir tc) chains in
+                             if tc == cc then
+                                 withCenter lengths pos l
+                              else
+                                 withOutCenter lengths pos l
                             
 withOutCenter :: [Int] -> Pos -> Int -> [(Pos,Pos)]
 withOutCenter [] _ _       = []
